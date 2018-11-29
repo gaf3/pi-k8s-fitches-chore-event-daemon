@@ -1,5 +1,5 @@
 IMAGE=pi-k8s-fitches-chore-event-daemon
-VERSION=0.1
+VERSION=0.2
 ACCOUNT=gaf3
 NAMESPACE=fitches
 VOLUMES=-v ${PWD}/lib/:/opt/pi-k8s/lib/ -v ${PWD}/test/:/opt/pi-k8s/test/ -v ${PWD}/bin/:/opt/pi-k8s/bin/
