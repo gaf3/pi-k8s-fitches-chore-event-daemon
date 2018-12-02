@@ -1,34 +1,48 @@
+MACHINE=$(shell uname -m)
 IMAGE=pi-k8s-fitches-chore-event-daemon
 VERSION=0.2
+TAG="$(VERSION)-$(MACHINE)"
 ACCOUNT=gaf3
 NAMESPACE=fitches
 VOLUMES=-v ${PWD}/lib/:/opt/pi-k8s/lib/ -v ${PWD}/test/:/opt/pi-k8s/test/ -v ${PWD}/bin/:/opt/pi-k8s/bin/
 
-.PHONY: pull build shell test run push create update delete
+ifeq ($(MACHINE),armv7l)
+BASE=resin/raspberry-pi-alpine-python:3.6.1
+else
+BASE=python:3.6-alpine3.8
+endif
 
-pull:
-	docker pull $(ACCOUNT)/$(IMAGE)login 
+.PHONY: build shell test run push create update delete create-dev update-dev delete-dev
 
 build:
-	docker build . -t $(ACCOUNT)/$(IMAGE):$(VERSION)
+	docker build . --build-arg BASE=$(BASE) -t $(ACCOUNT)/$(IMAGE):$(TAG)
 
 shell:
-	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh
+	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(TAG) sh
 
 test:
-	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "coverage run -m unittest discover -v test && coverage report -m --include lib/*.py"
+	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(TAG) sh -c "coverage run -m unittest discover -v test && coverage report -m --include lib/*.py"
 
 run:
-	docker run -it $(VOLUMES) --rm -h $(IMAGE) $(ACCOUNT)/$(IMAGE):$(VERSION)
+	docker run -it $(VOLUMES) --rm -h $(IMAGE) $(ACCOUNT)/$(IMAGE):$(TAG)
 
 push: build
-	docker push $(ACCOUNT)/$(IMAGE):$(VERSION)
+	docker push $(ACCOUNT)/$(IMAGE):$(TAG)
 
 create:
-	kubectl create -f k8s/pi-k8s.yaml
+	kubectl --context=pi-k8s create -f k8s/pi-k8s.yaml
 
 update:
-	kubectl replace -f k8s/pi-k8s.yaml
+	kubectl --context=pi-k8s replace -f k8s/pi-k8s.yaml
 
 delete:
-	kubectl delete -f k8s/pi-k8s.yaml
+	kubectl --context=pi-k8s delete -f k8s/pi-k8s.yaml
+
+create-dev:
+	kubectl --context=minikube create -f k8s/minikube.yaml
+
+update-dev:
+	kubectl --context=minikube replace -f k8s/minikube.yaml
+
+delete-dev:
+	kubectl --context=minikube delete -f k8s/minikube.yaml
