@@ -89,6 +89,9 @@ class TestService(unittest.TestCase):
         self.daemon.redis.messages = [
             None,
             {
+                "data": 1
+            },
+            {
                 "data": json.dumps({
                     "timestamp": 0
                 })
@@ -128,6 +131,9 @@ class TestService(unittest.TestCase):
                 "text": "do it"
             }
         }
+
+        self.daemon.process(7)
+        self.assertEqual(self.daemon.chore_redis.nexted, [])
 
         self.daemon.process(7)
         self.assertEqual(self.daemon.chore_redis.nexted, [])
