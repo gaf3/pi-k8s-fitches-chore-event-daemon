@@ -43,7 +43,7 @@ class Daemon(object):
 
         message = self.pubsub.get_message()
 
-        if not message:
+        if not message or isinstance(message['data'], int):
             return
 
         data = json.loads(message['data'])
