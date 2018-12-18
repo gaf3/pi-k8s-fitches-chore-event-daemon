@@ -93,11 +93,6 @@ class TestService(unittest.TestCase):
             },
             {
                 "data": json.dumps({
-                    "timestamp": 0
-                })
-            },
-            {
-                "data": json.dumps({
                     "timestamp": 7,
                     "type": "falling"
                 })
@@ -132,36 +127,30 @@ class TestService(unittest.TestCase):
             }
         }
 
-        self.daemon.process(7)
+        self.daemon.process()
         self.assertEqual(self.daemon.chore_redis.nexted, [])
 
-        self.daemon.process(7)
+        self.daemon.process()
         self.assertEqual(self.daemon.chore_redis.nexted, [])
 
-        self.daemon.process(7)
+        self.daemon.process()
         self.assertEqual(self.daemon.chore_redis.nexted, [])
 
-        self.daemon.process(7)
+        self.daemon.process()
         self.assertEqual(self.daemon.chore_redis.nexted, [])
 
-        self.daemon.process(7)
+        self.daemon.process()
         self.assertEqual(self.daemon.chore_redis.nexted, [])
 
-        self.daemon.process(7)
-        self.assertEqual(self.daemon.chore_redis.nexted, [])
-
-        self.daemon.process(7)
+        self.daemon.process()
         self.assertEqual(self.daemon.chore_redis.nexted, [{
             "text": "do it"
         }])
 
-    @unittest.mock.patch("service.time.time")
     @unittest.mock.patch("service.time.sleep")
     @unittest.mock.patch("traceback.format_exc")
     @unittest.mock.patch('builtins.print')
-    def test_run(self, mock_print, mock_traceback, mock_sleep, mock_time):
-
-        mock_time.return_value = 7
+    def test_run(self, mock_print, mock_traceback, mock_sleep):
 
         self.daemon.redis.messages = [
             {

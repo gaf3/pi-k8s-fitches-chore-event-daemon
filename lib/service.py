@@ -36,7 +36,7 @@ class Daemon(object):
         self.pubsub = self.redis.pubsub()
         self.pubsub.subscribe(self.channel) 
 
-    def process(self, start):
+    def process(self):
         """
         Processes a message from the channel if later than the daemons start time
         """
@@ -48,7 +48,7 @@ class Daemon(object):
 
         data = json.loads(message['data'])
 
-        if data["timestamp"] < start or data["type"] != "rising" or data["gpio_port"] != 4:
+        if data["type"] != "rising" or data["gpio_port"] != 4:
             return
 
         chore = self.chore_redis.get(data["node"])
@@ -63,12 +63,11 @@ class Daemon(object):
         Runs the daemon
         """
 
-        start = time.time()
         self.subscribe()
 
         while True:
             try:
-                self.process(start)
+                self.process()
                 time.sleep(self.sleep)
             except Exception as exception:
                 print(str(exception))
